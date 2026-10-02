@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<rect width="1200" height="630" fill="#f7f7f5"/>
+<rect x="24" y="24" width="1152" height="582" rx="28" fill="#fff" stroke="#e8e8e5"/>
+<g transform="translate(72 68) scale(.75)"><path d="M28 8a8 8 0 0 1 8 0l15 9a8 8 0 0 1 4 7v16a8 8 0 0 1-4 7l-15 9a8 8 0 0 1-8 0l-6-4-12 3 3-12a8 8 0 0 1-4-7V24a8 8 0 0 1 4-7Z" fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g font-family="Helvetica Neue, Arial, Arial Unicode MS, Heiti TC, sans-serif"><text x="136" y="103" font-size="30" font-weight="500" fill="#202020">ChatPTT</text><text x="1128" y="100" font-size="18" text-anchor="end" fill="#868682">chatptt.iswhiter.net</text>
+<text x="72" y="270" font-size="58" font-weight="500" fill="#161616">用對話，逛 PTT。</text>
+<text x="76" y="325" font-size="26" fill="#777771">熟悉的聊天介面，真實的鄉民討論。</text>
+<g font-size="18" fill="#62625e"><rect x="74" y="377" width="126" height="42" rx="21" fill="#f3f3f0"/><text x="137" y="405" text-anchor="middle">作者搜尋</text><rect x="210" y="377" width="144" height="42" rx="21" fill="#f3f3f0"/><text x="282" y="405" text-anchor="middle">推文分數篩選</text><rect x="364" y="377" width="126" height="42" rx="21" fill="#f3f3f0"/><text x="427" y="405" text-anchor="middle">圖片預覽</text></g>
+<text x="76" y="544" font-size="19" fill="#969690">免費開啟 · 不需登入 · 直接閱讀 PTT 原文</text></g>
+<g transform="translate(850 210) scale(3.75)"><path d="M28 8a8 8 0 0 1 8 0l15 9a8 8 0 0 1 4 7v16a8 8 0 0 1-4 7l-15 9a8 8 0 0 1-8 0l-6-4-12 3 3-12a8 8 0 0 1-4-7V24a8 8 0 0 1 4-7Z" fill="none" stroke="#222" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

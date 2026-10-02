@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-const base='http://127.0.0.1:5173/api/ptt';
+const base=(process.env.CHATPTT_TEST_BASE || 'http://127.0.0.1:8892')+'/api/ptt';
 async function read(query){const response=await fetch(`${base}?${new URLSearchParams(query)}`);return {status:response.status,data:await response.json()};}
 const board=await read({board:'C_Chat',adult:'1'});
 assert.equal(board.status,200,JSON.stringify(board));assert.ok(board.data.posts.length>0);assert.ok(board.data.previous);console.log('Live board:',board.data.board,board.data.posts.length,'posts');
