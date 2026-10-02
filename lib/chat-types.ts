@@ -1,8 +1,8 @@
 import type { SearchFilters } from './search';
 
 export type Post = { id:string; title:string; author:string; date:string; score:string; pinned:boolean };
-export type Comment = { tag:string; user:string; text:string; time:string };
-export type Article = { title:string; author:string; date:string; body:string; comments:Comment[]; url:string; board:string };
+export type Comment = { tag:string; user:string; text:string; time:string; continuation?:string };
+export type Article = { title:string; author:string; date:string; body:string; comments:Comment[]; discussionVersion?:1; url:string; board:string };
 export type BoardResult = { board:string; posts:Post[]; previous:string|null; query:string; filters:SearchFilters; url:string };
 export type LoadOptions = SearchFilters & {page?:string;query?:string;article?:string;archivePath?:string;prompt?:string;fresh?:boolean;sourceListId?:string;targetSessionId?:string};
 export type RetryRequest = { kind:'board'|'article'; board:string; options:LoadOptions };

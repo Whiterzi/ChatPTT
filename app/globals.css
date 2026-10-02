@@ -162,6 +162,10 @@ button,a,textarea{-webkit-tap-highlight-color:transparent}button{cursor:pointer;
 .article-body .article-source-note,.article-body .article-source-note a{font-size:12px;color:#737373}
 .article-body .article-source-note a{text-decoration-color:#ccc;text-underline-offset:2px}
 .article-body .article-source-note a:hover{color:#444;text-decoration-color:currentColor}
+.comment-continuation{margin:12px 0 16px 34px}
+.comment-continuation-label{display:block;margin-bottom:4px;font-size:12px;color:#858585}
+.comment-continuation .article-body{font-size:15px;line-height:1.8}
+.comments-note button{text-decoration:underline;text-underline-offset:3px;margin-left:6px}
 @media(pointer:coarse){.response-actions .pill-action,.article-tools .pill-action,.response-actions .text-action,.article-tools .text-action,.article-tools .icon-btn{min-height:36px}.article-tools .icon-btn{width:36px}}
 
 .sidebar-resize-handle{position:absolute;right:-4px;top:0;bottom:0;width:8px;z-index:36;cursor:col-resize;touch-action:none;outline:none;background:transparent!important}

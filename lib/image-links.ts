@@ -69,10 +69,10 @@ export function readImagePreferences(saved: string | null, legacy: string | null
 export const splitImageLinks = (text: string) => text.split(/(https?:\/\/[^\s<>"\u3000，。；！？「」『』【】]+)/g);
 export const cleanImageLink = (text: string) => text.replace(/[。，、；！？）\])]+$/, "");
 
-export function articleImages(article: { body: string; comments: { user: string; text: string }[] }): ArticleImage[] {
+export function articleImages(article: { body: string; comments: { user: string; text: string; continuation?:string }[] }): ArticleImage[] {
   const seen = new Set<string>();
   const images: ArticleImage[] = [];
-  for (const item of [{ text: article.body, source: "文章內文" }, ...article.comments.map(c => ({ text: c.text, source: `推文 · ${c.user}` }))]) {
+  for (const item of [{ text: article.body, source: "文章內文" }, ...article.comments.flatMap(c => [{ text: c.text, source: `推文 · ${c.user}` },{text:c.continuation??"",source:"原文補充"}])]) {
     for (const part of splitImageLinks(item.text)) {
       if (!/^https?:\/\//.test(part)) continue;
       const href = cleanImageLink(part), src = imagePreviewUrl(href);

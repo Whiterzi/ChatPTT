@@ -1,6 +1,7 @@
 import { load } from "cheerio/slim";
 import { RequestCache, UpstreamBusyError } from "./request-cache";
 import { parseArticleReference } from "../lib/article-reference";
+import { parseArticleContent } from "./article-content";
 
 const ORIGIN = "https://www.ptt.cc";
 const cache = new RequestCache();
@@ -46,11 +47,8 @@ export async function GET(request:Request){
   if(article){
    const content=$("#main-content");if(!content.length)throw new PttError("PTT 暫時無法讀取這篇文章，請稍後重試。");
    const meta:Record<string,string>={};content.find(".article-metaline, .article-metaline-right").each((_,el)=>{meta[$(el).find(".article-meta-tag").text().trim()]=$(el).find(".article-meta-value").text().trim();});
-   const comments=content.find(".push").map((_,el)=>({tag:clean($(el).find(".push-tag").text()),user:clean($(el).find(".push-userid").text()),text:$(el).find(".push-content").text().replace(/^:\s?/,""),time:clean($(el).find(".push-ipdatetime").text()).replace(/^(?:\d{1,3}\.){3}\d{1,3}\s*/,"")})).get();
-   content.find(".article-metaline, .article-metaline-right, .push, script, style").remove();
-   content.find("br").replaceWith("\n");
-   content.find(".richcontent").each((_,el)=>{const links=$(el).find("a[href]").map((_,a)=>$(a).attr("href")).get().filter(s=>s&&/^https?:\/\//.test(s));$(el).replaceWith(links.length?`\n${links.join("\n")}\n`:"");});
-   data={board,title:meta["標題"]||$("title").text().replace(/ - (?:看板|精華區).*$/, ""),author:meta["作者"]||"原文未提供作者",date:meta["時間"]||"",body:clean(content.text()),comments,url:key};
+   const {body,comments}=parseArticleContent($);
+   data={board,title:meta["標題"]||$("title").text().replace(/ - (?:看板|精華區).*$/, ""),author:meta["作者"]||"原文未提供作者",date:meta["時間"]||"",body,comments,discussionVersion:1,url:key};
   }else{
    if(!$(".r-list-container").length)throw new PttError("PTT 暫時無法讀取這個看板，請稍後重試。");
    let pinned=false;

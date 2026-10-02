@@ -97,3 +97,16 @@ test('archive locations survive saved standalone conversations and failed-reques
  assert.equal(restored.sessions[0].messages[1].article.url,`https://www.ptt.cc${path}`);
  assert.equal(restored.sessions[0].messages[2].retry.options.archivePath,path);
 });
+
+test('inserted replies retain their position in both open and closed saved conversations',()=>{
+ const state=fixture(),article=state.sessions[0].messages[1].article;
+ article.discussionVersion=1;
+ article.comments[0].continuation='原文補充\nhttps://images.example.com/reply.png\n※ 編輯: fixture_author';
+ article.comments.push({tag:'推',user:'fixture_reader',text:'下一則推文',time:'10/02'});
+ let restored=decodeWorkspace(encodeWorkspace(state));
+ assert.deepEqual(restored.sessions[0].messages[1].article,article);
+ state.closedSessions=[{session:state.sessions[0],index:0,closedAt:100,expanded:{article:true}}];
+ state.sessions=[];state.active=null;
+ restored=decodeWorkspace(encodeWorkspace(state));
+ assert.deepEqual(restored.closedSessions[0].session.messages[1].article,article);
+});
