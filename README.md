@@ -2,6 +2,8 @@
 
 Browse PTT in a chat interface.
 
+You can also try it at [chatptt.iswhiter.net](https://chatptt.iswhiter.net/).
+
 Install Node.js 22.13+ and Git, then run:
 
 ```sh
