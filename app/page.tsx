@@ -153,7 +153,7 @@ function ChatApp({sidebarWidth,setSidebarWidth}:{sidebarWidth:number;setSidebarW
   try{
    const params=new URLSearchParams({board,adult:"1"});
    if(options.author)params.set("author",options.author);if(options.minScore!==undefined&&options.minScore!=="")params.set("minScore",options.minScore);
-   if(options.page)params.set("page",options.page);if(options.query)params.set("q",options.query);if(options.article)params.set("article",options.article);
+   if(options.page)params.set("page",options.page);if(options.query)params.set("q",options.query);if(options.article)params.set("article",options.article);if(options.archivePath)params.set("archive",options.archivePath);
    const response=await fetch(`/api/ptt?${params}`,{signal:AbortSignal.any([controller.signal,AbortSignal.timeout(18000)])});
    const data=await response.json() as BoardResult | Article | {error:string};if(!response.ok)throw new Error("error" in data?data.error:"暫時無法讀取，請稍後重試。");
    if(token!==request.current)return;
@@ -216,11 +216,11 @@ function ChatApp({sidebarWidth,setSidebarWidth}:{sidebarWidth:number;setSidebarW
  function openReferenceDialog(value=""){setReferenceSeed(value);setReferenceOpen(true);}
  function openReference(reference:ArticleReference){
   if(busyRef.current)return;
-  if(session?.articleKey){openStandaloneArticle(reference.board,reference.article);return;}
-  const source=outlineMessage?.board?.board===reference.board&&outlineMessage.board.posts.some(p=>p.id===reference.article)?outlineMessage:[...messages].reverse().find(m=>m.board?.board===reference.board&&m.board.posts.some(p=>p.id===reference.article));
-  const cached=messages.find(m=>m.article?.board===reference.board&&articleMatches(m.article.url,reference.board,reference.article));
+  if(session?.articleKey){openStandaloneReference(reference);return;}
+  const source=reference.archivePath?undefined:outlineMessage?.board?.board===reference.board&&outlineMessage.board.posts.some(p=>p.id===reference.article)?outlineMessage:[...messages].reverse().find(m=>m.board?.board===reference.board&&m.board.posts.some(p=>p.id===reference.article));
+  const cached=messages.find(m=>m.article?.board===reference.board&&articleMatches(m.article.url,reference.board,reference.article,reference.archivePath));
   if(cached){setInput("");jumpToMessage(cached.id,source?.id);return;}
-  ageCheck(()=>load("article",reference.board,{article:reference.article,prompt:reference.kind==="aid"?`開啟 ${reference.aid} (${reference.board})`:reference.url,sourceListId:source?.id}));
+  ageCheck(()=>load("article",reference.board,{article:reference.article,archivePath:reference.archivePath,prompt:reference.kind==="aid"?`開啟 ${reference.aid} (${reference.board})`:reference.url,sourceListId:source?.id}));
  }
  function pasteReference(event:ClipboardEvent<HTMLTextAreaElement>){
   if(busyRef.current)return;
@@ -233,11 +233,11 @@ function ChatApp({sidebarWidth,setSidebarWidth}:{sidebarWidth:number;setSidebarW
   if(reference.kind==="aid"&&!reference.explicitBoard&&!session)openReferenceDialog(pasted);else openReference(reference);
  }
  function readReference(raw:string,board:string){const reference=parseArticleReference(raw,board);if(reference)openReference(reference);}
- function openStandaloneArticle(board:string,postId:string,title?:string){
+ function openStandaloneArticle(board:string,postId:string,title?:string,archivePath?:string){
   if(busyRef.current)return;
-  const articleKey=`${board}/${postId}`;
+  const articleKey=archivePath??`${board}/${postId}`;
   const existing=sessions.find(s=>s.articleKey===articleKey);
-  const matches=(m:Message)=>m.article?.board===board&&articleMatches(m.article.url,board,postId);
+  const matches=(m:Message)=>m.article?.board===board&&articleMatches(m.article.url,board,postId,archivePath);
   const loaded=existing?.messages.find(matches);
   if(existing&&loaded){activateSession(existing.id);restorePosition.current=null;setReadingFocus({sessionId:existing.id,messageId:loaded.id});setInput("");setOpenMobile(false);return;}
   const cached=messages.find(matches)??sessions.flatMap(s=>s.messages).find(matches);
@@ -249,11 +249,11 @@ function ChatApp({sidebarWidth,setSidebarWidth}:{sidebarWidth:number;setSidebarW
    setSessions(all=>existing?all.map(s=>s.id===id?entry:s):[entry,...all].slice(0,20));
    captureViews("");restorePosition.current=null;setActive(id);setInput("");setOpenMobile(false);
    if(message)setReadingFocus({sessionId:id,messageId:message.id});
-   else void load("article",board,{article:postId,prompt,targetSessionId:id});
+   else void load("article",board,{article:postId,archivePath,prompt,targetSessionId:id});
   };
   if(cached)open();else ageCheck(open);
  }
- function openStandaloneReference(reference:ArticleReference){openStandaloneArticle(reference.board,reference.article);}
+ function openStandaloneReference(reference:ArticleReference){openStandaloneArticle(reference.board,reference.article,undefined,reference.archivePath);}
  async function copyAid(m:Message){
   const reference=parseArticleReference(m.article!.url);if(!reference?.aid)return;
   try{await navigator.clipboard.writeText(`${reference.aid} (${reference.board})`);setCopied(`${m.id}:aid`);setTimeout(()=>setCopied(null),1800);}catch{setCopied(null);}

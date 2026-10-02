@@ -1,5 +1,6 @@
 import { load } from "cheerio/slim";
 import { RequestCache, UpstreamBusyError } from "./request-cache";
+import { parseArticleReference } from "../lib/article-reference";
 
 const ORIGIN = "https://www.ptt.cc";
 const cache = new RequestCache();
@@ -13,13 +14,18 @@ export async function GET(request:Request){
   const board=params.get("board")||"C_Chat", article=params.get("article"), page=params.get("page"), query=(params.get("q")||"").trim(), author=(params.get("author")||"").trim(), minScore=params.get("minScore")??"";
   if(!/^[A-Za-z][A-Za-z0-9_-]{0,29}$/.test(board))throw new PttError("看板名稱格式不正確。",400);
   if(article&&!/^M\.\d{8,14}\.A\.[A-Za-z0-9]{1,8}$/.test(article))throw new PttError("文章網址格式不正確。",400);
+  const archivePath=params.get("archive");
+  if(archivePath!==null){
+   const reference=archivePath.length<=1000?parseArticleReference(`${ORIGIN}${archivePath}`):null;
+   if(!reference?.archivePath||reference.archivePath!==archivePath||reference.board!==board||reference.article!==article)throw new PttError("精華區文章網址格式不正確。",400);
+  }
   if(page&&!/^\d{1,7}$/.test(page))throw new PttError("頁碼格式不正確。",400);
   if(query.length>150)throw new PttError("搜尋關鍵字請在 150 字以內。",400);
   if(author&&!/^[A-Za-z][A-Za-z0-9_]{0,29}$/.test(author))throw new PttError("請輸入正確的作者帳號。",400);
   if(minScore!==""&&(!/^-?\d{1,3}$/.test(minScore)||Number(minScore)<-100||Number(minScore)>100))throw new PttError("推文分數請填 -100 到 100；100 代表爆文門檻。",400);
   const searchQuery=[query,author?`author:${author}`:"",minScore!==""?`recommend:${Number(minScore)}`:""].filter(Boolean).join(" ");
   if(params.get("adult")!=="1")throw new PttError("請先在畫面中確認已滿 18 歲。",403);
-  const url=new URL(article?`/bbs/${board}/${article}.html`:searchQuery?`/bbs/${board}/search`:`/bbs/${board}/index${page||""}.html`,ORIGIN);
+  const url=new URL(archivePath??(article?`/bbs/${board}/${article}.html`:searchQuery?`/bbs/${board}/search`:`/bbs/${board}/index${page||""}.html`),ORIGIN);
   if(searchQuery&&!article){url.searchParams.set("q",searchQuery);if(page)url.searchParams.set("page",page);}
   const key=url.href;
   // Include presentation fields so raw search shortcuts cannot reuse mismatched labels.
@@ -44,7 +50,7 @@ export async function GET(request:Request){
    content.find(".article-metaline, .article-metaline-right, .push, script, style").remove();
    content.find("br").replaceWith("\n");
    content.find(".richcontent").each((_,el)=>{const links=$(el).find("a[href]").map((_,a)=>$(a).attr("href")).get().filter(s=>s&&/^https?:\/\//.test(s));$(el).replaceWith(links.length?`\n${links.join("\n")}\n`:"");});
-   data={board,title:meta["標題"]||$("title").text().replace(/ - 看板.*$/, ""),author:meta["作者"]||"原文未提供作者",date:meta["時間"]||"",body:clean(content.text()),comments,url:key};
+   data={board,title:meta["標題"]||$("title").text().replace(/ - (?:看板|精華區).*$/, ""),author:meta["作者"]||"原文未提供作者",date:meta["時間"]||"",body:clean(content.text()),comments,url:key};
   }else{
    if(!$(".r-list-container").length)throw new PttError("PTT 暫時無法讀取這個看板，請稍後重試。");
    let pinned=false;

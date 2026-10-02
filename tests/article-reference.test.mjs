@@ -24,3 +24,14 @@ test('AID accepts explicit board formats and uses the selected board only when o
  assert.equal(parseArticleReference('#1bK_4001 #1bK_4102'),null);
  assert.equal(parseArticleReference('搜尋 #1bK_4001'),null);
 });
+
+test('archive links preserve their complete location instead of generating an unrelated AID',()=>{
+ const path='/man/C_Chat/D20B/D522/DB8F/M.1700000000.A.001.html';
+ assert.deepEqual(parseArticleReference(`http://ptt.cc${path}?from=share#comments`),{
+  board:'C_Chat',article:'M.1700000000.A.001',url:`https://www.ptt.cc${path}`,aid:null,kind:'url',explicitBoard:true,archivePath:path,
+ });
+ assert.equal(parseArticleReference('https://www.ptt.cc/man/C_Chat/M.1700000000.A.001.html').archivePath,'/man/C_Chat/M.1700000000.A.001.html');
+ assert.equal(parseArticleReference('https://www.ptt.cc/bbs/C_Chat/M.1700000000.A.001.html').aid,'#1bK_4001');
+ for(const path of ['/man/C_Chat/index.html','/man/C_Chat/D20B/index.html','/man/C_Chat/arbitrary/M.1700000000.A.001.html','/man/C_Chat/D20B/not-an-article.html','/man/C_Chat/D20B/M.1700000000.A.001.html/extra'])assert.equal(parseArticleReference(`https://www.ptt.cc${path}`),null,path);
+ assert.equal(parseArticleReference(`https://www.ptt.cc.evil.example${path}`),null);
+});

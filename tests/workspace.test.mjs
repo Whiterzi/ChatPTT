@@ -86,3 +86,14 @@ test('history keeps the latest 20 unique closures and validates archived data',(
  for(const width of [0,999,NaN])assert.throws(()=>decodeWorkspace(JSON.stringify({...fixture(),sidebarWidth:width})));
  assert.deepEqual(parseChatCommand('/history'),{type:'history'});
 });
+
+test('archive locations survive saved standalone conversations and failed-request retries',()=>{
+ const state=fixture(),path='/man/C_Chat/D20B/M.1700000000.A.001.html';
+ state.sessions[0].articleKey=path;
+ state.sessions[0].messages[1].article.url=`https://www.ptt.cc${path}`;
+ state.sessions[0].messages[2].retry.options={article:'M.1700000000.A.001',archivePath:path,targetSessionId:'one'};
+ const restored=decodeWorkspace(encodeWorkspace(state));
+ assert.equal(restored.sessions[0].articleKey,path);
+ assert.equal(restored.sessions[0].messages[1].article.url,`https://www.ptt.cc${path}`);
+ assert.equal(restored.sessions[0].messages[2].retry.options.archivePath,path);
+});

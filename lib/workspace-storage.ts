@@ -14,7 +14,7 @@ const message = z.object({
  id,role:z.enum(['user','assistant']),sourceListId:id.optional(),text:z.string().optional(),error:z.boolean().optional(),
  board:z.object({board,posts:z.array(z.object({id,title:z.string(),author:z.string(),date:z.string(),score:z.string(),pinned:z.boolean()})).max(200),previous:z.string().nullable(),query:z.string(),filters:filters.default({}),url:pttUrl}).optional(),
  article:z.object({title:z.string(),author:z.string(),date:z.string(),body:z.string(),comments:z.array(z.object({tag:z.string(),user:z.string(),text:z.string(),time:z.string()})),url:pttUrl,board}).optional(),
- retry:z.object({kind:z.enum(['board','article']),board,options:filters.extend({page:z.string().optional(),query:z.string().optional(),article:z.string().optional(),prompt:z.string().optional(),fresh:z.boolean().optional(),sourceListId:id.optional(),targetSessionId:id.optional()})}).optional(),
+ retry:z.object({kind:z.enum(['board','article']),board,options:filters.extend({page:z.string().optional(),query:z.string().optional(),article:z.string().optional(),archivePath:z.string().max(1000).regex(/^\/man\//).optional(),prompt:z.string().optional(),fresh:z.boolean().optional(),sourceListId:id.optional(),targetSessionId:id.optional()})}).optional(),
 });
 const session = z.object({id,title:z.string(),board,articleKey:z.string().optional(),messages:z.array(message)});
 const view = z.object({top:z.number().finite().nonnegative(),anchorId:id.optional(),offset:z.number().finite().optional(),draft:z.string().max(400),focus:focus.optional()});

@@ -29,3 +29,14 @@ test('cached articles match the board and exact post, including a URL fragment',
  assert.equal(articleMatches(oldArticle.article.url,'C_Chat','M.1.A.AA'),false);
  assert.equal(articleMatches('not a url','C_Chat','M.1.A.AAA'),false);
 });
+
+test('live posts and archive copies in different folders have separate cache identities',()=>{
+ const path='/man/C_Chat/D20B/M.1700000000.A.001.html';
+ const archived=`https://www.ptt.cc${path}`;
+ assert.equal(articleMatches(archived,'C_Chat','M.1700000000.A.001',path),true);
+ assert.equal(articleMatches(archived,'C_Chat','M.1700000000.A.001'),false);
+ assert.equal(articleMatches('https://www.ptt.cc/bbs/C_Chat/M.1700000000.A.001.html','C_Chat','M.1700000000.A.001',path),false);
+ assert.equal(articleMatches(archived,'C_Chat','M.1700000000.A.001',path.replace('D20B','D522')),false);
+ assert.equal(articleMatches(archived,'NBA','M.1700000000.A.001',path),false);
+ assert.equal(articleMatches(archived.replace('www.ptt.cc','malicious.example'),'C_Chat','M.1700000000.A.001',path),false);
+});

@@ -2,7 +2,7 @@
 // https://github.com/ptt/pttbbs/blob/master/common/bbs/aids.c
 const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
 const boardPattern = /^[A-Za-z][A-Za-z0-9_-]{0,29}$/;
-export type ArticleReference = { board: string; article: string; url: string; aid: string | null; kind: "url" | "aid"; explicitBoard: boolean };
+export type ArticleReference = { board: string; article: string; url: string; aid: string | null; kind: "url" | "aid"; explicitBoard: boolean; archivePath?: string };
 
 export function articleIdToAid(article: string): string | null {
   const match = article.match(/^M\.(\d{1,10})\.A\.([0-9A-Fa-f]{3})$/);
@@ -31,6 +31,10 @@ export function parseArticleReference(raw: string, fallbackBoard = "C_Chat"): Ar
     try {
       const url = new URL(text);
       if (/\s/.test(text) || !['www.ptt.cc', 'ptt.cc'].includes(url.hostname) || url.username || url.password || url.port) return null;
+      const archive = url.pathname.match(/^\/man\/([A-Za-z][A-Za-z0-9_-]{0,29})\/(?:D[0-9A-Fa-f]{1,16}\/){0,32}(M\.\d{8,14}\.A\.[A-Za-z0-9]{1,8})\.html$/);
+      // An AID cannot encode the archive directories, and archive copies can have
+      // different filenames from the original post. Keep the exact archive URL.
+      if (archive) return { board: archive[1], article: archive[2], url: `https://www.ptt.cc${url.pathname}`, aid: null, kind: "url", explicitBoard: true, archivePath: url.pathname };
       const match = url.pathname.match(/^\/bbs\/([A-Za-z][A-Za-z0-9_-]{0,29})\/(M\.\d{8,14}\.A\.[A-Za-z0-9]{1,8})\.html$/);
       if (!match) return null;
       return { board: match[1], article: match[2], url: `https://www.ptt.cc${url.pathname}`, aid: articleIdToAid(match[2]), kind: "url", explicitBoard: true };

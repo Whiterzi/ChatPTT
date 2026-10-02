@@ -10,6 +10,11 @@ export function readingContext<T extends ReadingMessage>(messages: T[], focusId?
   return { reading, list: source ?? [...preceding].reverse().find(m => m.board?.board === reading.article?.board) };
 }
 
-export function articleMatches(url: string, board: string, postId: string) {
-  try { return new URL(url).pathname === `/bbs/${board}/${postId}.html`; } catch { return false; }
+export function articleMatches(url: string, board: string, postId: string, archivePath?: string) {
+  try {
+    const parsed=new URL(url);
+    if(!['www.ptt.cc','ptt.cc'].includes(parsed.hostname))return false;
+    if(archivePath&&(!archivePath.startsWith(`/man/${board}/`)||!archivePath.endsWith(`/${postId}.html`)))return false;
+    return parsed.pathname === (archivePath??`/bbs/${board}/${postId}.html`);
+  } catch { return false; }
 }
