@@ -1,8 +1,8 @@
 # ChatPTT
 
-用聊天介面閱讀 PTT。
+Browse PTT in a chat interface.
 
-先安裝 Node.js 22.13 以上版本與 Git，再執行：
+Install Node.js 22.13+ and Git, then run:
 
 ```sh
 git clone https://github.com/Whiterzi/ChatPTT.git
@@ -12,4 +12,4 @@ npm run build
 npm start
 ```
 
-開啟 http://localhost:8892，選擇看板或貼上 PTT 網址開始閱讀。輸入 `/help` 查看指令；在終端機按 `Ctrl+C` 停止服務。
+Open http://localhost:8892. Choose a board or paste a PTT URL to start reading. Type `/help` for commands. Press `Ctrl+C` in the terminal to stop.
