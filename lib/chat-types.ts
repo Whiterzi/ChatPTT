@@ -10,4 +10,5 @@ export type Message = { id:string; role:'user'|'assistant'; sourceListId?:string
 export type Session = { id:string; title:string; messages:Message[]; board:string; articleKey?:string };
 export type ReadingFocus = {sessionId:string;messageId:string;listId?:string};
 export type SessionView = {top:number;anchorId?:string;offset?:number;draft:string;focus?:ReadingFocus};
-export type Workspace = {version:1;sessions:Session[];active:string|null;input:string;readingFocus:ReadingFocus|null;expanded:Record<string,boolean>;views:Record<string,SessionView>;sidebarOpen:boolean};
+export type ClosedSession = {session:Session;index:number;view?:SessionView;expanded:Record<string,boolean>;closedAt:number};
+export type Workspace = {version:1;sessions:Session[];closedSessions:ClosedSession[];active:string|null;input:string;readingFocus:ReadingFocus|null;expanded:Record<string,boolean>;views:Record<string,SessionView>;sidebarOpen:boolean;sidebarWidth:number};

@@ -149,3 +149,32 @@ button,a,textarea{-webkit-tap-highlight-color:transparent}button{cursor:pointer;
 .workspace-notice{position:fixed;z-index:60;left:50%;top:68px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100vw - 28px);width:max-content;padding:10px 12px 10px 16px;border:1px solid #ddd;border-radius:12px;background:#fff;box-shadow:0 4px 24px #00000014;font-size:13px;line-height:1.6;color:#666}
 .workspace-notice>span{min-width:0;overflow-wrap:anywhere}.workspace-notice>button:not(.icon-btn){display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:12px;color:#444}.workspace-notice .icon-btn{flex-shrink:0;width:26px;height:26px}
 @media(max-width:767px){.workspace-notice{top:66px;gap:8px;font-size:12px}.command-hints button{gap:8px;padding:10px 8px}.command-hints code{min-width:90px}}
+
+/* Quiet reading controls and source metadata. */
+.response-actions,.article-tools{flex-wrap:wrap;gap:4px 8px}
+.response-actions{margin-top:14px}.article-tools{margin:16px 0}
+.response-actions .pill-action,.article-tools .pill-action{min-height:28px;padding:4px 7px;gap:5px;border-color:transparent;border-radius:7px;font-size:12px;line-height:1.5;color:#737373}
+.response-actions .text-action,.article-tools .text-action{min-height:28px;padding:4px 6px;gap:5px;border-radius:7px}
+.article-tools .icon-btn{width:28px;height:28px}
+.response-actions svg,.article-tools svg{width:14px;height:14px}
+.response-actions .pill-action>span,.article-tools .pill-action>span{font-size:11px;padding-left:2px}
+.response-actions button:hover,.response-actions a:hover,.article-tools button:hover,.article-tools a:hover{background:#efefef;color:#333}
+.article-body .article-source-note,.article-body .article-source-note a{font-size:12px;color:#737373}
+.article-body .article-source-note a{text-decoration-color:#ccc;text-underline-offset:2px}
+.article-body .article-source-note a:hover{color:#444;text-decoration-color:currentColor}
+@media(pointer:coarse){.response-actions .pill-action,.article-tools .pill-action,.response-actions .text-action,.article-tools .text-action,.article-tools .icon-btn{min-height:36px}.article-tools .icon-btn{width:36px}}
+
+.sidebar-resize-handle{position:absolute;right:-4px;top:0;bottom:0;width:8px;z-index:36;cursor:col-resize;touch-action:none;outline:none;background:transparent!important}
+.sidebar-resize-handle::after{content:"";position:absolute;left:3px;top:0;bottom:0;width:2px;background:transparent;transition:background .12s}
+.sidebar-resize-handle:hover::after,.sidebar-resize-handle:focus-visible::after,.sidebar-resizing .sidebar-resize-handle::after{background:#aaa}
+.sidebar-resizing,.sidebar-resizing *{cursor:col-resize!important;user-select:none!important}
+.sidebar-resizing [data-slot=sidebar-gap],.sidebar-resizing [data-slot=sidebar-container]{transition:none!important}
+.workspace-tools .history-access{display:flex;width:100%;font-size:12px;gap:6px;padding:4px 0 9px;color:#737373}.history-access>span{margin-left:auto;font-size:11px}
+.closed-history-dialog{max-height:calc(100dvh - 48px);grid-template-rows:auto auto minmax(0,1fr)}
+.closed-history-list{overflow:auto;overscroll-behavior:contain;margin:0 -8px;padding:0 2px;list-style:none}
+.closed-history-list button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 9px;text-align:left;border-radius:9px}
+.closed-history-list button:hover{background:#f3f3f3}.closed-history-list button:disabled{opacity:.5;cursor:not-allowed}
+.closed-history-list svg{flex-shrink:0;color:#888}.closed-history-copy{flex:1;min-width:0}
+.closed-history-copy strong{display:block;font-size:14px;font-weight:450;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.closed-history-copy small{display:block;margin-top:4px;font-size:11px;color:#888}
+.closed-history-empty{padding:22px 0;font-size:13px;color:#888;line-height:1.8}

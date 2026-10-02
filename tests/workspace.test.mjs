@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { decodeWorkspace,encodeWorkspace,closeWorkspaceSession,MAX_WORKSPACE_CHARS } from '../lib/workspace-storage.ts';
+import { decodeWorkspace,encodeWorkspace,closeWorkspaceSession,rememberClosedSession,MAX_WORKSPACE_CHARS } from '../lib/workspace-storage.ts';
 import { parseChatCommand } from '../lib/chat-commands.ts';
 
 const fixture=()=>({version:1,sessions:[{id:'one',title:'測試對話',board:'C_Chat',messages:[
  {id:'list',role:'assistant',board:{board:'C_Chat',posts:[{id:'M.1700000000.A.001',title:'測試文章',author:'fixture_user',date:'10/02',score:'50',pinned:false}],previous:'123',query:'測試',filters:{author:'fixture_user',minScore:'50'},url:'https://www.ptt.cc/bbs/C_Chat/search?q=測試'}},
  {id:'article',role:'assistant',sourceListId:'list',article:{title:'測試文章',board:'C_Chat',author:'fixture_user',date:'10/02',body:'內文',comments:[{tag:'推',user:'fixture_user',text:'推文',time:'10/02'}],url:'https://www.ptt.cc/bbs/C_Chat/M.1700000000.A.001.html'}},
  {id:'error',role:'assistant',error:true,text:'讀取失敗',retry:{kind:'article',board:'C_Chat',options:{article:'M.1700000001.A.002',sourceListId:'list',targetSessionId:'one',fresh:false}}}
- ]}],active:'one',input:'尚未送出的草稿',readingFocus:{sessionId:'one',messageId:'article',listId:'list'},expanded:{article:true},views:{one:{top:345,anchorId:'message-article',offset:-100,draft:'尚未送出的草稿',focus:{sessionId:'one',messageId:'article',listId:'list'}}},sidebarOpen:false});
+ ]}],active:'one',input:'尚未送出的草稿',readingFocus:{sessionId:'one',messageId:'article',listId:'list'},expanded:{article:true},views:{one:{top:345,anchorId:'message-article',offset:-100,draft:'尚未送出的草稿',focus:{sessionId:'one',messageId:'article',listId:'list'}}},sidebarOpen:false,sidebarWidth:288,closedSessions:[]});
 
 test('workspace round trip retains list context, drafts, scroll anchor, comments and serializable retries',()=>{
  const state=fixture();const restored=decodeWorkspace(encodeWorkspace(state));
@@ -50,4 +50,39 @@ test('Chinese and slash actions match complete commands without hijacking search
  assert.deepEqual(parseChatCommand('/image next'),{type:'image-step',delta:1});
  assert.deepEqual(parseChatCommand('/solo #1bK_4001 (C_Chat)'),{type:'solo',reference:'#1bK_4001 (C_Chat)'});
  for(const text of ['搜尋 關閉對話','關閉对话的心得','/open 0','/open -1','/open 1.5','看看 /close 的文章','/close extra','C_Chat','https://www.ptt.cc/bbs/C_Chat/M.1700000000.A.001.html'])assert.equal(parseChatCommand(text),null,text);
+});
+
+
+test('older workspaces gain default width and empty history without losing open content',()=>{
+ const old=fixture();delete old.sidebarWidth;delete old.closedSessions;
+ const restored=decodeWorkspace(JSON.stringify(old));
+ assert.equal(restored.sidebarWidth,288);assert.deepEqual(restored.closedSessions,[]);
+ assert.deepEqual(restored.sessions,old.sessions);assert.equal(restored.input,old.input);
+});
+
+test('closed history survives reload with article context, draft, expanded comments and scroll position',()=>{
+ const state=fixture(),original=state.sessions[0];
+ const item={session:original,index:0,view:state.views.one,expanded:{article:true,missing:true},closedAt:1700000000000};
+ state.closedSessions=rememberClosedSession([],item);state.sessions=[];state.active=null;state.readingFocus=null;state.sidebarWidth=432;
+ const restored=decodeWorkspace(encodeWorkspace(state));
+ assert.equal(restored.sidebarWidth,432);assert.deepEqual(restored.views,{});
+ assert.deepEqual(restored.closedSessions[0].session,original);
+ assert.deepEqual(restored.closedSessions[0].view,item.view);
+ assert.deepEqual(restored.closedSessions[0].expanded,{article:true});
+ assert.equal(restored.closedSessions[0].session.messages[2].retry.options.targetSessionId,'one');
+});
+
+test('history keeps the latest 20 unique closures and validates archived data',()=>{
+ const state=fixture(),session=state.sessions[0];let history=[];
+ for(let i=0;i<25;i++)history=rememberClosedSession(history,{session:{...session,id:String(i)},index:0,expanded:{},closedAt:i});
+ assert.equal(history.length,20);assert.equal(history[0].session.id,'24');assert.equal(history.at(-1).session.id,'5');
+ history=rememberClosedSession(history,{...history[5],closedAt:30});
+ assert.equal(history.length,20);assert.equal(history[0].session.id,'19');assert.equal(new Set(history.map(item=>item.session.id)).size,20);
+ state.closedSessions=history;assert.equal(decodeWorkspace(encodeWorkspace(state)).closedSessions.length,20);
+ state.closedSessions[0].session.messages[1].article.url='https://malicious.example/article';
+ assert.throws(()=>decodeWorkspace(JSON.stringify(state)));
+ const duplicate=fixture();duplicate.closedSessions=[{session:duplicate.sessions[0],index:0,expanded:{},closedAt:1}];
+ assert.throws(()=>decodeWorkspace(JSON.stringify(duplicate)));
+ for(const width of [0,999,NaN])assert.throws(()=>decodeWorkspace(JSON.stringify({...fixture(),sidebarWidth:width})));
+ assert.deepEqual(parseChatCommand('/history'),{type:'history'});
 });

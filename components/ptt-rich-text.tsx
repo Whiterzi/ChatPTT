@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PreviewMedia } from "@/components/preview-media";
 import { parseArticleReference } from "@/lib/article-reference";
+import { articleTextSections } from "@/lib/article-text";
 import { imagePreviewUrl, imageSizes, splitImageLinks, cleanImageLink, type ImageMode, type ImageSize } from "@/lib/image-links";
 
 type ImageOptions = { mode: ImageMode; defaultSize: ImageSize; quiet: boolean; floating: boolean; onOpenImage: (href: string) => void; onOpenArticle?: (reference: string) => void };
@@ -26,7 +27,8 @@ function ImageLink({ href, mode, defaultSize, quiet, floating, onOpenImage, onOp
   </span>;
 }
 
-export function RichText({ text, ...options }: ImageOptions & { text: string }) {
+export function RichText({ text, mutedMetadata=false, ...options }: ImageOptions & { text: string; mutedMetadata?:boolean }) {
+  if(mutedMetadata)return <>{articleTextSections(text).map((part,i)=><span key={i} className={part.metadata?"article-source-note":undefined}><RichText text={part.text} {...options} onOpenArticle={part.metadata?undefined:options.onOpenArticle}/></span>)}</>;
   return <>{splitImageLinks(text).map((part, i) => {
     if (!/^https?:\/\//.test(part)) return part;
     const href = cleanImageLink(part);

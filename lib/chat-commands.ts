@@ -1,6 +1,6 @@
 import type { ImageDisplay, ImageSize } from './image-links';
 export type ChatCommand =
- | {type:'new'|'close'|'undo'|'clear'|'help'|'list'|'back'|'more'|'latest'|'gallery'|'gallery-close'|'save'}
+ | {type:'new'|'close'|'undo'|'clear'|'help'|'history'|'list'|'back'|'more'|'latest'|'gallery'|'gallery-close'|'save'}
  | {type:'open';index:number;separate:boolean}
  | {type:'solo';reference:string}
  | {type:'switch';index:number}
@@ -12,7 +12,7 @@ export type ChatCommand =
 
 export const commandHints = [
  {command:'/help',label:'查看全部指令'}, {command:'/new',label:'開始新對話'},
- {command:'/close',label:'關閉目前對話'}, {command:'/undo',label:'復原最近關閉'},
+ {command:'/close',label:'關閉目前對話'}, {command:'/history',label:'查看已關閉對話'}, {command:'/undo',label:'復原最近關閉'},
  {command:'/open 3',label:'閱讀本頁第 3 篇'}, {command:'/solo 3',label:'將第 3 篇獨立開啟'},
  {command:'/solo ',label:'加上 PTT 網址或 AID，獨立開啟'}, {command:'/switch 2',label:'切換至側欄第 2 個項目'},
  {command:'/list',label:'再貼一次文章列表'}, {command:'/back',label:'返回原文章列表'},
@@ -32,7 +32,7 @@ export function parseChatCommand(raw:string):ChatCommand|null {
  const simple:[RegExp,ChatCommand['type']][]=[
   [/^(?:\/new|新對話|開始新對話)$/i,'new'],[/^(?:\/close|關閉(?:目前)?對話)$/i,'close'],
   [/^(?:\/undo|復原關閉|復原對話)$/i,'undo'],[/^(?:\/clear|清除(?:全部)?紀錄|關閉全部對話)$/i,'clear'],
-  [/^(?:\/help|指令|指令說明|使用說明)$/i,'help'],[/^(?:\/list|顯示文章列表|文章列表|重貼列表)$/i,'list'],
+  [/^(?:\/history|歷史紀錄|最近關閉)$/i,'history'],[/^(?:\/help|指令|指令說明|使用說明)$/i,'help'],[/^(?:\/list|顯示文章列表|文章列表|重貼列表)$/i,'list'],
   [/^(?:\/back|回到文章列表|返回列表)$/i,'back'],[/^(?:\/more|下一頁|上一頁|再多一點|更多)[！!]?$/i,'more'],
   [/^(?:\/latest|看看最新|最新文章)$/i,'latest'],[/^(?:\/gallery|圖片小視窗)$/i,'gallery'],
   [/^(?:\/gallery\s+close|關閉圖片小視窗)$/i,'gallery-close'],[/^(?:\/save|儲存狀態|儲存紀錄)$/i,'save'],
